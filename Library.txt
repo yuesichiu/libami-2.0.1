@@ -1,0 +1,38 @@
+
+Lib AMI Overview
+----------------
+  Lib AMI is an abstration library for the purposes of making communications between an
+an application and the Asterisk PBX server's manager interface easier.
+  All of AMI is heavily dependant on one specific structure: ast_packet. ast_packet is
+defined in core.h. Documentation on core.h and it's functions is in core.h.
+
+  The manager interface, which is part of the Asterisk PBX, communicates over sockes
+in a specific format. The use of this library requires at least a rudimentary
+understanding of the manager interface, it's function and format.
+
+The Library
+-----------
+  The AMI library is divided into six files:
+
+  ami.h:     A wrapper header which includes the other five files. Use this if you plan to use
+             most of the functionality of the library.
+
+  core.h:    This file provides the core functionality of the library, including the structure
+             used in all of the communication to and from Asterisk, as well as network
+             and utility functions.
+
+  admin.h:   Functions used by administrators of the phone server are defined here, including
+             functionality for managing Asterisk's internal database and managing queues and
+             agents.
+
+  channel.h: Functions for managing channels are defined in this file.
+  
+  info.h:    Functions for gathering information about different aspects of Asterisk,
+             including sip peers, agents, mailboxes, parked calls, channels, and queues are
+             defined in this file.
+
+  manager.h: Functions for basic manager activities are defined in this file, including 
+             logging in and out of the Asterisk server, pinging the server, and setting
+             which events should be received (if any) for a connection.
+
+  Each header file of the library is documented.

@@ -1,0 +1,112 @@
+Fri Nov 21 12:35:54 EST 2008
+* Spelling & Typo Fixes
+
+- Patch submitted by Erik van Pienbroek <erik@tintel.nl> of TinTel BV
+
+
+Fri Nov 21 12:35:54 EST 2008
+The ami library could get in an undefined state when events were enabled
+by the function ami_login() or ami_set_events() and an event was received
+while performing an action.
+
+This is fixed by 'abusing' the ActionID. Every ami function now always
+sends the ActionID 'ami_'. If the application has passed an ActionID to
+an ami function, it will be appended to the 'ami_' ActionID. Whenever
+an message is received from the Asterisk server, it will test whether
+the 'ami_' ActionID exists.
+
+If so, the 'ami_' part of the ActionID will be stripped and the resulting
+packet will be returned to the calling function.
+
+If the 'ami_' ActionID doesn't exist, this means the message is a regular
+Asterisk event. If the application using ami is interested in these
+events, a callback function can be set up using a new function called
+ami_set_event_cb(). Every time an Asterisk event is received (which isn't
+part of an action), the callback function will be called so that the
+application using ami can process these events.
+
+Another new function was also introduced: ami_sock_receive_event()
+This function behaves almost the same as the function ami_sock_receive().
+The difference between ami_sock_receive() and ami_sock_receive_event()
+is that ami_sock_receive_event() doesn't wait for other messages from
+the Asterisk server, while ami_sock_receive() keeps waiting until a
+message containing the 'ami_' ActionID was received. Applications which
+are using select() to be notified of new messages on the Asterisk socket
+can call this function the read and process these events.
+
+This patch doesn't change the old behaviour of all ami functions.
+
+A small bug was also fixed: the ast_packet* returned by the
+function ami_dbshow didn't contain an ActionID
+
+- Patch submitted by Erik van Pienbroek <erik@tintel.nl> of TinTel BV
+
+
+Fri Nov 21 12:35:54 EST 2008
+The function ami_dbshow() contains some code which has no effect.
+This patch removes this useless piece of code
+
+- Patch submitted by Erik van Pienbroek <erik@tintel.nl> of TinTel BV
+
+Fri Nov 21 12:35:54 EST 2008
+If ami functions were called with invalid data, these functions
+would always return NULL. This patch causes these functions
+to return an ast_packet* containing a detailed error message.
+
+The only situation where the ami functions now return NULL is
+when there's no free memory available as it doesn't make any
+sense to generate an ast_packet* in that situation
+
+- Patch submitted by Erik van Pienbroek <erik@tintel.nl> of TinTel BV
+
+Fri Nov 21 12:35:54 EST 2008
+The function ami_extension_state() would always send an invalid 'Exten' and
+'Context' as an '\r\n' sequence was missing. This patch fixes this
+
+- Patch submitted by Erik van Pienbroek <erik@tintel.nl> of TinTel BV
+
+Fri Nov 21 12:35:54 EST 2008
+If the Asterisk server sends a message where multiple colons are in a single
+line, the message could get cut off. This patch make ami only process the
+first colon in a line and ignores any subsequent colons
+
+- Patch submitted by Erik van Pienbroek <erik@tintel.nl> of TinTel BV
+
+
+Fri Nov 21 12:35:54 EST 2008
+In all the ami headers, the parameter names were missing in the function
+declarations. While this is valid for the C programming language, this
+introduces
+a small annoyance in development environments like KDevelop as it causes
+code completion to only show the parameter types and not the parameter names.
+
+This patch adds parameter names to all the ami functions and also
+fixes some incomplete comments
+
+- Patch submitted by Erik van Pienbroek <erik@tintel.nl> of TinTel BV
+
+
+Fri Nov 21 12:35:54 EST 2008
+If Asterisk didn't respond to an Action in 250msec, libami would always
+return an error and get in an undefined state (subsequent actions would
+try to process the wrong response). This is fixed by waiting 'forever' for
+data to become available in the function ami_sock_receive().
+Deadlocks shouldn't occur as the other libami functions call the
+function ami_sock_readable() first before trying to receive data.
+
+The only exception to this is the function ami_sip_show_peer(). Due to
+a bug in Asterisk, the Asterisk server always sends an empty \r\n sequence.
+To catch this empty sequence an extra if was added to the ami_sock_receive()
+function. Tests have shown this change doesn't introduce any side effects.
+
+- Patch submitted by Erik van Pienbroek <erik@tintel.nl> of TinTel BV
+
+Wed Sep 13 12:48:28 EDT 2006 Justin Camp <j@intuitivecreations.com>
+	* Changed exten arguments to agentcallbacklogin and extensionstate functions from type int to char * (as they should have been originally)
+ Tue Jul 18 14:10:41 EDT 2006 Justin Camp <j@intuitivecreations.com>
+	* Minor fix that displays the appropriate error message from asterisk in *info() functions
+
+ Jun 30 16:35:47 EDT 2006 Justin Camp <j@intuitivecreations.com>
+        * Initial Release (Beta)
+
+
